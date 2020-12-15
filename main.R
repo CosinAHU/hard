@@ -40,6 +40,7 @@ out4 <- apply(eval.oracle, 2, function(x) {c(mean(x), sd(x))})
 out <- cbind(t(out1), t(out2), t(out3), t(out4))
 write.csv(out, file="./p=1000 weak=0.05.csv", row.names = FALSE)
 
+
 #@ (p, sigma, weak) = (1000, 0.4, 0.1)
 data2 <- generate.data(n=100, weak=0.1, p=1000, sigma=0.4, q=3)
 X.train <- data2[["X.train"]]
