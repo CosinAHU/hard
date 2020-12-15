@@ -88,13 +88,6 @@ generate.data <- function(n = 100, weak, p, sigma, q){
     Sigma[i, ] <- 0.5^abs((i - 1:p))
   }
   
-  #train <- gen_train_data(n, sigma, Sigma, beta0)
-  #X.train <- train[["X.train"]]
-  #y.train <- train[["y.train"]]
-  
-  #X.test <- mvrnorm(10000, rep(0, p), Sigma)
-  #y.test <- X.test %*% beta0 + mvrnorm(1, rep(0, n), sigma^2 * diag(n))
-  
   return (gen_data(n, sigma, Sigma, beta0))
 }
 
@@ -120,21 +113,33 @@ metric <- function(betah, betat, X.train, y.train, X.test, y.test){
   l2 <- norm(betah - betat, "2")  #L2-loss
   l1 <- sum(abs(betah - betat))  #L1-loss
   linf <- max(abs(betah - betat))  #L\infty-loss
-  FP <- mean(( betah !=0 ) & (betat == 0))  #FP
+  FP <- length((betah !=0) & (betat == 0)) / length(betat == 0)
+  
+  #FN_strong
+  # idx.strong <- c(1:6, 13:18, 25:30)
+  # FN.strong <- mean(( betah[idx.strong] ==0 ) & (betat[idx.strong] != 0))
+  
+  #FN_weak
+  # idx.weak <- c(7:12, 19:24, 31:36)
+  # FN.weak <- mean(( betah[idx.weak] ==0 ) & (betat[idx.weak] != 0))
   
   #FN_strong
   idx.strong <- c(1:6, 13:18, 25:30)
-  FN.strong <- mean(( betah[idx.strong] ==0 ) & (betat[idx.strong] != 0))
+  FN.s <- length(( betah[idx.strong] ==0 ) & (betat[idx.strong] != 0))
+  TP.s <- length(( betah[idx.strong] != 0) & (betat[idx.strong] != 0))
+  FN.strong <- FN.s / (FN.s + TP.s)
   
   #FN_weak
   idx.weak <- c(7:12, 19:24, 31:36)
-  FN.weak <- mean(( betah[idx.weak] ==0 ) & (betat[idx.weak] != 0))
+  FN.w <- length(( betah[idx.weak] ==0 ) & (betat[idx.weak] != 0))
+  TP.w <- length(( betah[idx.weak] != 0) & (betat[idx.weak] != 0))
+  FN.weak <- FN.w / (FN.w + TP.w)
   
   #sigma.hat
   n <- nrow(y.train)
   p <- sum(betah != 0)
   e <- y.train - X.train %*% betah
-  sigmah <- sqrt(sum(e^2) / (n - p))
+  sigmah <- sqrt(sum(e^2) / abs((n - p)))
   
   return (list(PE = PE, l2.loss = l2, 
                l1.loss = l1, linf.loss = linf,

@@ -24,7 +24,7 @@ for (iter in 1:100){
   ytrain <- as.matrix(y.train[, iter])
   lam <- cv.glmnet(Xtrain, ytrain, type.measure = "mse")$lambda.min
   beta.lasso <- matrix(glmnet(Xtrain, ytrain, family = "gaussian", alpha=1, lambda=lam)$beta)
-  beta.ht <- t(ht(Xtrain ,ytrain))
+  beta.ht <- ht(Xtrain ,ytrain)
   beta.sica <- t(sica(Xtrain, ytrain))
   beta.oracle <- oracle(Xtrain, ytrain, beta.true)
   eval.lasso[iter, ] <- unlist(metric(beta.lasso, beta.true, Xtrain, ytrain, X.test, y.test))
@@ -33,7 +33,7 @@ for (iter in 1:100){
   eval.oracle[iter, ] <- unlist(metric(beta.oracle, beta.true, Xtrain, ytrain, X.test, y.test))
 }
 
-out1 <- apply(eval.lasso, 2, function(x) {c(mean(x), sd(x))})
+out1 <- apply(eval.lasso, 2, function(x) {c(mean(x[!is.infinite(x)]), sd(x[!is.infinite(x)]))})
 out2 <- apply(eval.ht, 2, function(x) {c(mean(x), sd(x))})
 out3 <- apply(eval.sica, 2, function(x) {c(mean(x), sd(x))})
 out4 <- apply(eval.oracle, 2, function(x) {c(mean(x), sd(x))})
@@ -55,7 +55,7 @@ for (iter in 1:100){
   ytrain <- as.matrix(y.train[, iter])
   lam <- cv.glmnet(Xtrain, ytrain, type.measure = "mse")$lambda.min
   beta.lasso <- matrix(glmnet(Xtrain, ytrain, family = "gaussian", alpha=1, lambda=lam)$beta)
-  beta.ht <- t(ht(Xtrain ,ytrain))
+  beta.ht <- t(ht(Xtrain ,ytrain, lambda = 100))
   beta.sica <- t(sica(Xtrain, ytrain))
   beta.oracle <- oracle(Xtrain, ytrain, beta.true)
   eval.lasso[iter, ] <- unlist(metric(beta.lasso, beta.true, Xtrain, ytrain, X.test, y.test))
@@ -64,7 +64,7 @@ for (iter in 1:100){
   eval.oracle[iter, ] <- unlist(metric(beta.oracle, beta.true, Xtrain, ytrain, X.test, y.test))
 }
 
-out1 <- apply(eval.lasso, 2, function(x) {c(mean(x), sd(x))})
+out1 <- apply(eval.lasso, 2, function(x) {c(mean(x[!is.infinite(x)]), sd(x[!is.infinite(x)]))})
 out2 <- apply(eval.ht, 2, function(x) {c(mean(x), sd(x))})
 out3 <- apply(eval.sica, 2, function(x) {c(mean(x), sd(x))})
 out4 <- apply(eval.oracle, 2, function(x) {c(mean(x), sd(x))})
@@ -87,7 +87,7 @@ for (iter in 1:100){
   ytrain <- as.matrix(y.train[, iter])
   lam <- cv.glmnet(Xtrain, ytrain, type.measure = "mse")$lambda.min
   beta.lasso <- matrix(glmnet(Xtrain, ytrain, family = "gaussian", alpha=1, lambda=lam)$beta)
-  beta.ht <- t(ht(Xtrain ,ytrain))
+  beta.ht <- t(ht(Xtrain ,ytrain, lambda = 100))
   beta.sica <- t(sica(Xtrain, ytrain))
   beta.oracle <- oracle(Xtrain, ytrain, beta.true)
   eval.lasso[iter, ] <- unlist(metric(beta.lasso, beta.true, Xtrain, ytrain, X.test, y.test))
@@ -96,7 +96,7 @@ for (iter in 1:100){
   eval.oracle[iter, ] <- unlist(metric(beta.oracle, beta.true, Xtrain, ytrain, X.test, y.test))
 }
 
-out1 <- apply(eval.lasso, 2, function(x) {c(mean(x), sd(x))})
+out1 <- apply(eval.lasso, 2, function(x) {c(mean(x[!is.infinite(x)]), sd(x[!is.infinite(x)]))})
 out2 <- apply(eval.ht, 2, function(x) {c(mean(x), sd(x))})
 out3 <- apply(eval.sica, 2, function(x) {c(mean(x), sd(x))})
 out4 <- apply(eval.oracle, 2, function(x) {c(mean(x), sd(x))})
@@ -119,7 +119,7 @@ for (iter in 1:100){
   ytrain <- as.matrix(y.train[, iter])
   lam <- cv.glmnet(Xtrain, ytrain, type.measure = "mse")$lambda.min
   beta.lasso <- matrix(glmnet(Xtrain, ytrain, family = "gaussian", alpha=1, lambda=lam)$beta)
-  beta.ht <- t(ht(Xtrain ,ytrain))
+  beta.ht <- t(ht(Xtrain ,ytrain, lambda = 100))
   beta.sica <- t(sica(Xtrain, ytrain))
   beta.oracle <- oracle(Xtrain, ytrain, beta.true)
   eval.lasso[iter, ] <- unlist(metric(beta.lasso, beta.true, Xtrain, ytrain, X.test, y.test))
@@ -128,7 +128,7 @@ for (iter in 1:100){
   eval.oracle[iter, ] <- unlist(metric(beta.oracle, beta.true, Xtrain, ytrain, X.test, y.test))
 }
 
-out1 <- apply(eval.lasso, 2, function(x) {c(mean(x), sd(x))})
+out1 <- apply(eval.lasso, 2, function(x) {c(mean(x[!is.infinite(x)]), sd(x[!is.infinite(x)]))})
 out2 <- apply(eval.ht, 2, function(x) {c(mean(x), sd(x))})
 out3 <- apply(eval.sica, 2, function(x) {c(mean(x), sd(x))})
 out4 <- apply(eval.oracle, 2, function(x) {c(mean(x), sd(x))})
@@ -147,14 +147,13 @@ write.csv(out, file="./p=5000 weak=0.1.csv", row.names = FALSE)
 #@ X.test: a matrix of 10000 samples
 #@ y.test: a matrix of 10000 by 1
 #@ lambda: ridge parameter
-#@ betat: true coefficient
 #@ returns: l2-loss given a fixed lambda
 #@ note: in this simulation, we only consider (n, p, weak) = (100, 1000, 0.05)
 L2.risk <- function(X.train, y.train, X.test, y.test, lambda, betat){
-  n <- nrow(y.train)
+  n <- ncol(y.train)
   l2.loss <- matrix(0, nrow = n, ncol = 4)
   for (iter in 1:n){
-    cat("---------This is the", iter, "th iteration----------")
+    cat("---------This is the", iter, "th iteration----------\n")
     Xtrain <- X.train[, , iter]
     ytrain <- as.matrix(y.train[, iter])
     lam <- cv.glmnet(Xtrain, ytrain, type.measure = "mse")$lambda.min
@@ -165,12 +164,8 @@ L2.risk <- function(X.train, y.train, X.test, y.test, lambda, betat){
     
     idx.lasso <- which(beta.lasso != 0)
     s <- length(idx.lasso)
-    print(s)
     X.refit <- Xtrain[, idx.lasso]
     beta.refit <- solve(t(X.refit) %*% X.refit + lambda * diag(s)) %*% t(X.refit) %*% ytrain
-    print(class(beta.refit))
-    print(c(nrow(beta.refit ), ncol(beta.refit )))
-    print(c(nrow(X.test[, idx.lasso]), ncol(X.test[, idx.lasso])))
     y.hat <- X.test[, idx.lasso] %*% beta.refit
     e <- y.test - y.hat
     loss <- sum(e^2)
@@ -180,7 +175,7 @@ L2.risk <- function(X.train, y.train, X.test, y.test, lambda, betat){
     s <- length(idx.ht)
     X.refit <- Xtrain[, idx.ht]
     beta.refit <- solve(t(X.refit) %*% X.refit + lambda * diag(s)) %*% t(X.refit) %*% ytrain
-    y.hat <- X.test[, idx.lasso] %*% beta.refit
+    y.hat <- X.test[, idx.ht] %*% beta.refit
     e <- y.test - y.hat
     loss <- sum(e^2)
     l2.loss[iter, 2] <- loss
@@ -189,7 +184,7 @@ L2.risk <- function(X.train, y.train, X.test, y.test, lambda, betat){
     s <- length(idx.sica)
     X.refit <- Xtrain[, idx.sica]
     beta.refit <- solve(t(X.refit) %*% X.refit + lambda * diag(s)) %*% t(X.refit) %*% ytrain
-    y.hat <- X.test[, idx.lasso] %*% beta.refit
+    y.hat <- X.test[, idx.sica] %*% beta.refit
     e <- y.test - y.hat
     loss <- sum(e^2)
     l2.loss[iter, 3] <- loss
@@ -198,7 +193,7 @@ L2.risk <- function(X.train, y.train, X.test, y.test, lambda, betat){
     s <- length(idx.oracle)
     X.refit <- Xtrain[, idx.oracle]
     beta.refit <- solve(t(X.refit) %*% X.refit + lambda * diag(s)) %*% t(X.refit) %*% ytrain
-    y.hat <- X.test[, idx.lasso] %*% beta.refit
+    y.hat <- X.test[, idx.oracle] %*% beta.refit
     e <- y.test - y.hat
     loss <- sum(e^2)
     l2.loss[iter, 4] <- loss
@@ -215,15 +210,14 @@ y.train <- data[["y.train"]]
 y.test <- data[["y.test"]]
 beta.true <- generate.beta(weak=0.05, p=1000, q=3)
 
-#@ variable `loss` is of dimension (100, 4, 81) = (#samples, #models, #lambdas)
-#@ after applied function `mean`, it is expected to return a matrix of type (#models, #lambdas) 
 loss <- array(0, dim=c(100, 4, length(lam)))
 for (k in 1:length(lam)){
+  cat("Processing lambda[", k, "] = ", lam[k], "\n")
   loss[, , k] <- L2.risk(X.train, y.train, X.test, y.test, lam[k], beta.true)
 }
 
-ave.loss <- apply(loss, 2:3, mean)
+ave.loss <- apply(loss, 2:3, mean) / 10000
 par(mfrow=c(2,2))
 for (i in 1:4){
   plot(lam, ave.loss[i, ], xlab=quote(lambda[1]), ylab="Prediction risk", type="l")
-}
+} 
