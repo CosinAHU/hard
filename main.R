@@ -55,7 +55,7 @@ for (iter in 1:100){
   ytrain <- as.matrix(y.train[, iter])
   lam <- cv.glmnet(Xtrain, ytrain, type.measure = "mse")$lambda.min
   beta.lasso <- matrix(glmnet(Xtrain, ytrain, family = "gaussian", alpha=1, lambda=lam)$beta)
-  beta.ht <- ht(Xtrain ,ytrain, lambda=1.48)
+  beta.ht <- ht(Xtrain ,ytrain, lambda=0.36)
   beta.sica <- t(sica(Xtrain, ytrain))
   beta.oracle <- oracle(Xtrain, ytrain, beta.true)
   eval.lasso[iter, ] <- unlist(metric(beta.lasso, beta.true, Xtrain, ytrain, X.test, y.test))
@@ -87,7 +87,7 @@ for (iter in 1:100){
   ytrain <- as.matrix(y.train[, iter])
   lam <- cv.glmnet(Xtrain, ytrain, type.measure = "mse")$lambda.min
   beta.lasso <- matrix(glmnet(Xtrain, ytrain, family = "gaussian", alpha=1, lambda=lam)$beta)
-  beta.ht <- ht(Xtrain ,ytrain, lambda=1.48)
+  beta.ht <- ht(Xtrain ,ytrain, lambda=0.643)
   beta.sica <- t(sica(Xtrain, ytrain))
   beta.oracle <- oracle(Xtrain, ytrain, beta.true)
   eval.lasso[iter, ] <- unlist(metric(beta.lasso, beta.true, Xtrain, ytrain, X.test, y.test))

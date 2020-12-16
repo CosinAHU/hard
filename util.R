@@ -112,30 +112,18 @@ metric <- function(betah, betat, X.train, y.train, X.test, y.test){
   betat <- matrix(betat, ncol=1)
   
   PE <- mean((y.test - X.test %*% betah)^2)  #prediction error: PE
-  l2 <- sum((betah - betat)^2)  #L2-loss
+  l2 <- sqrt(sum((betah - betat)^2))  #L2-loss
   l1 <- sum(abs(betah - betat))  #L1-loss
   linf <- max(abs(betah - betat))  #L\infty-loss
-  FP <- length((betah !=0) & (betat == 0)) / length(betat == 0)
-  
-  #FN_strong
-  # idx.strong <- c(1:6, 13:18, 25:30)
-  # FN.strong <- mean(( betah[idx.strong] ==0 ) & (betat[idx.strong] != 0))
-  
-  #FN_weak
-  # idx.weak <- c(7:12, 19:24, 31:36)
-  # FN.weak <- mean(( betah[idx.weak] ==0 ) & (betat[idx.weak] != 0))
+  FP <- sum((betah !=0) * (betat == 0))
   
   #FN_strong
   idx.strong <- c(1:6, 13:18, 25:30)
-  FN.s <- length(( betah[idx.strong] ==0 ) & (betat[idx.strong] != 0))
-  TP.s <- length(( betah[idx.strong] != 0) & (betat[idx.strong] != 0))
-  FN.strong <- FN.s / (FN.s + TP.s)
+  FN.strong <- sum(( betah[idx.strong] ==0 ) * (betat[idx.strong] != 0))
   
   #FN_weak
   idx.weak <- c(7:12, 19:24, 31:36)
-  FN.w <- length(( betah[idx.weak] ==0 ) & (betat[idx.weak] != 0))
-  TP.w <- length(( betah[idx.weak] != 0) & (betat[idx.weak] != 0))
-  FN.weak <- FN.w / (FN.w + TP.w)
+  FN.weak <- sum(( betah[idx.weak] ==0 ) * (betat[idx.weak] != 0))
   
   #sigma.hat
   n <- nrow(y.train)
