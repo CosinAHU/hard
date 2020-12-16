@@ -107,10 +107,12 @@ metric <- function(betah, betat, X.train, y.train, X.test, y.test){
   if ( length(betah) != length(betat) ){
     stop("The length of estimated coefficient and true coefficient must be the same.")
   }
-
+  
+  betah <- matrix(betah, ncol=1)
+  betat <- matrix(betat, ncol=1)
   
   PE <- mean((y.test - X.test %*% betah)^2)  #prediction error: PE
-  l2 <- norm(betah - betat, "2")  #L2-loss
+  l2 <- sum((betah - betat)^2)  #L2-loss
   l1 <- sum(abs(betah - betat))  #L1-loss
   linf <- max(abs(betah - betat))  #L\infty-loss
   FP <- length((betah !=0) & (betat == 0)) / length(betat == 0)

@@ -8,7 +8,6 @@
 # @ X is an n x p design matrix with each column vector rescaled to have L2-norm n^{1/2}
 # @ lambda >= 0 is the regularization parameter
 # @ lambda0 is the parameter of penalty function.
-# @ varset is the potential important variables based on prior knowledge, default empty set.
 # @ inival is the initial value of beta. In order to make it stable in numerical computation, if it is
 # @ not specified, a random initialization using normal random numbers will be used.
 # @ maxiter is the maximum number of iteration
@@ -16,13 +15,17 @@
 # @ returns: the hard-thresholding estimate of \beta
 
 
-ht <- function(X, y, lambda0 = 1e-3, lambda = 1e-2, varset = c(), inival = integer(), maxiter = 50, tol = 1e-4) {
+ht <- function(X, y, lambda0 = 1e-3, lambda = 1e-2, inival = integer(), maxiter = 50, tol = 1e-4) {
   
   n <- nrow(X)
   p <- ncol(X)
-  if (is.null(inival)){
-    inival <- rnorm(p)
+  if (length(inival) == 0){
+    inival <- rbinom(p, 1, 0.03)
   }
+  #  rescale X to make each column vector have L2-norm n^{1/2}
+  Xsca <- sqrt(colSums(X^2))/sqrt(n)                      
+  X <- X / (matrix(rep(Xsca, n), n, p, byrow = TRUE))  
+  
   XXmat <- 1/n * t(X) %*% X
   cvec <- 1/n * t(X) %*% y
   
@@ -30,7 +33,7 @@ ht <- function(X, y, lambda0 = 1e-3, lambda = 1e-2, varset = c(), inival = integ
   iter <- 1
   update <- 1
   ind <- 1:p
-  varset <- union(which(inival != 0), varset)
+  varset <- which(inival != 0)
   
   while ( (iter <= maxiter) & (update > tol) ){
     iter <- iter + 1
@@ -44,9 +47,9 @@ ht <- function(X, y, lambda0 = 1e-3, lambda = 1e-2, varset = c(), inival = integ
       z1 <- XXmat[I, I]
       Lam <- 1/z1
       if (length(setr) == 0) {
-        z <- cvec[I]
+        z <- cvec[I] / z1
       } else {            
-        z <- (cvec[I] - XXmat[I, setr]%*%beta[setr])
+        z <- (cvec[I] - XXmat[I, setr]%*%beta[setr]) / z1
       }
       
       beta[I] <- uhard(z, Lam, lambda0, lambda)
@@ -67,10 +70,20 @@ ht <- function(X, y, lambda0 = 1e-3, lambda = 1e-2, varset = c(), inival = integ
     ind <- union(c(t(setr[indm]), ind), varset)
   }
   
+  #  rescale beta vector to original scale
+  beta <- beta/t(Xsca)
+  
+  #  If the size of selected model exceeds n/2, display a warning message
+  if (sum(beta != 0) > n/2) {
+    cat(" ")
+    cat("Warning: The solution found is nonsparse and may be inaccurate. Try a larger lambda!")
+    cat(" ")
+  }
+  
   return (beta)
 }
 
-  
+
 #@ function `uhard`
 #@ univariate minimization of
 #@ min_beta  (2 Lam)^(-1) (z - beta)^2 + lambda0 |beta| + p_lambda(|beta|) for hard thresholding penalty
@@ -107,4 +120,3 @@ hard.thred <- function(t, lambda){
   return (1/2 * (lambda^2 - pmax(0, lambda - t)^2))
   
 }
-

@@ -10,7 +10,7 @@ library(glmnet) # for lasso
 
 #@ (p, sigma, weak) = (1000, 0.4, 0.05)
 set.seed(2020)
-data1 <- generate.data(n=100, weak=0.05, p=1000, sigma=0.4, q=3)
+#data1 <- generate.data(n=100, weak=0.05, p=1000, sigma=0.4, q=3)
 X.train <- data1[["X.train"]]
 X.test <- data1[["X.test"]]
 y.train <- data1[["y.train"]]
@@ -24,7 +24,7 @@ for (iter in 1:100){
   ytrain <- as.matrix(y.train[, iter])
   lam <- cv.glmnet(Xtrain, ytrain, type.measure = "mse")$lambda.min
   beta.lasso <- matrix(glmnet(Xtrain, ytrain, family = "gaussian", alpha=1, lambda=lam)$beta)
-  beta.ht <- ht(Xtrain ,ytrain)
+  beta.ht <- ht(Xtrain ,ytrain, lambda=0.36)
   beta.sica <- t(sica(Xtrain, ytrain))
   beta.oracle <- oracle(Xtrain, ytrain, beta.true)
   eval.lasso[iter, ] <- unlist(metric(beta.lasso, beta.true, Xtrain, ytrain, X.test, y.test))
@@ -40,9 +40,8 @@ out4 <- apply(eval.oracle, 2, function(x) {c(mean(x), sd(x))})
 out <- cbind(t(out1), t(out2), t(out3), t(out4))
 write.csv(out, file="./p=1000 weak=0.05.csv", row.names = FALSE)
 
-
 #@ (p, sigma, weak) = (1000, 0.4, 0.1)
-data2 <- generate.data(n=100, weak=0.1, p=1000, sigma=0.4, q=3)
+#data2 <- generate.data(n=100, weak=0.1, p=1000, sigma=0.4, q=3)
 X.train <- data2[["X.train"]]
 X.test <- data2[["X.test"]]
 y.train <- data2[["y.train"]]
@@ -56,7 +55,7 @@ for (iter in 1:100){
   ytrain <- as.matrix(y.train[, iter])
   lam <- cv.glmnet(Xtrain, ytrain, type.measure = "mse")$lambda.min
   beta.lasso <- matrix(glmnet(Xtrain, ytrain, family = "gaussian", alpha=1, lambda=lam)$beta)
-  beta.ht <- ht(Xtrain ,ytrain, lambda = 100)
+  beta.ht <- ht(Xtrain ,ytrain, lambda=1.48)
   beta.sica <- t(sica(Xtrain, ytrain))
   beta.oracle <- oracle(Xtrain, ytrain, beta.true)
   eval.lasso[iter, ] <- unlist(metric(beta.lasso, beta.true, Xtrain, ytrain, X.test, y.test))
@@ -74,7 +73,7 @@ write.csv(out, file="./p=1000 weak=0.1.csv", row.names = FALSE)
 
 
 #@ (p, sigma, weak) = (5000, 0.3, 0.05)
-data3 <- generate.data(n=100, weak=0.05, p=5000, sigma=0.3, q=3)
+#data3 <- generate.data(n=100, weak=0.05, p=5000, sigma=0.3, q=3)
 X.train <- data3[["X.train"]]
 X.test <- data3[["X.test"]]
 y.train <- data3[["y.train"]]
@@ -88,7 +87,7 @@ for (iter in 1:100){
   ytrain <- as.matrix(y.train[, iter])
   lam <- cv.glmnet(Xtrain, ytrain, type.measure = "mse")$lambda.min
   beta.lasso <- matrix(glmnet(Xtrain, ytrain, family = "gaussian", alpha=1, lambda=lam)$beta)
-  beta.ht <- ht(Xtrain ,ytrain, lambda = 100)
+  beta.ht <- ht(Xtrain ,ytrain, lambda=1.48)
   beta.sica <- t(sica(Xtrain, ytrain))
   beta.oracle <- oracle(Xtrain, ytrain, beta.true)
   eval.lasso[iter, ] <- unlist(metric(beta.lasso, beta.true, Xtrain, ytrain, X.test, y.test))
@@ -106,7 +105,7 @@ write.csv(out, file="./p=5000 weak=0.05.csv", row.names = FALSE)
 
 
 #@ (p, sigma, weak) = (5000, 0.3, 0.1)
-data4 <- generate.data(n=100, weak=0.1, p=5000, sigma=0.3, q=3)
+#data4 <- generate.data(n=100, weak=0.1, p=5000, sigma=0.3, q=3)
 X.train <- data4[["X.train"]]
 X.test <- data4[["X.test"]]
 y.train <- data4[["y.train"]]
@@ -120,7 +119,7 @@ for (iter in 1:100){
   ytrain <- as.matrix(y.train[, iter])
   lam <- cv.glmnet(Xtrain, ytrain, type.measure = "mse")$lambda.min
   beta.lasso <- matrix(glmnet(Xtrain, ytrain, family = "gaussian", alpha=1, lambda=lam)$beta)
-  beta.ht <- ht(Xtrain ,ytrain, lambda = 100)
+  beta.ht <- ht(Xtrain ,ytrain, lambda=1.48)
   beta.sica <- t(sica(Xtrain, ytrain))
   beta.oracle <- oracle(Xtrain, ytrain, beta.true)
   eval.lasso[iter, ] <- unlist(metric(beta.lasso, beta.true, Xtrain, ytrain, X.test, y.test))
@@ -159,7 +158,7 @@ L2.risk <- function(X.train, y.train, X.test, y.test, lambda, betat){
     ytrain <- as.matrix(y.train[, iter])
     lam <- cv.glmnet(Xtrain, ytrain, type.measure = "mse")$lambda.min
     beta.lasso <- matrix(glmnet(Xtrain, ytrain, family = "gaussian", alpha=1, lambda=lam)$beta)
-    beta.ht <- ht(Xtrain ,ytrain)
+    beta.ht <- t(ht(Xtrain ,ytrain))
     beta.sica <- t(sica(Xtrain, ytrain))
     beta.oracle <- oracle(Xtrain, ytrain, betat)
     
