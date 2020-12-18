@@ -36,7 +36,6 @@ generate.beta <- function(weak, p, q){
 #@ q: repeated times of v = (\beta_{strong}^{\top}, \beta_{weak}^{\top}).
 generate.data <- function(n = 100, weak, p, sigma, q){
   
-  require(MASS)
   require(Rcpp)
   require(RcppArmadillo)
   
